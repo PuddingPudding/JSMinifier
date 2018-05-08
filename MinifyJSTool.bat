@@ -1,4 +1,5 @@
 @echo off
+SETLOCAL ENABLEDELAYEDEXPANSION
 
 REM 目標地址
 echo target location %1 
@@ -9,40 +10,19 @@ echo %cd%
 
 REM 加上/d才能跨槽轉換，先到原本的位子找出closure-compiler
 cd /d %~dp0
+echo now at %~dp0
 echo %cd%
-set minifier=closure-compiler-v20180402.jar
-REM for %%m in (closure-compiler*.jar) do ( REM 若發現多於的closure-compiler的話僅挑選最新版來使用
-REM     echo find %%m
-REM     if %%m GTR %minifier%  (
-REM         set minifier=%%m
-REM         echo come in, now minifier is %minifier%
-REM     ) 
-REM )
+set minifier=%~dp0
+for %%m in (closure-compiler*.jar) do ( REM 若發現多於的closure-compiler的話僅挑選最新版來使用
+    echo find %%m
+    if %~dp0%%m GTR %minifier%  (
+        set minifier=%~dp0%%m
+        echo come in, now minifier is %minifier%
+    ) 
+)
 echo %minifier%
-java -jar minifier CookieManager.js
 
-REM call :ScanFiles %1
-
-REM cd /d %1
-REM echo %cd%
-REM for /d %%d in (*) do ( REM 用來找出路徑下所有js
-REM     echo %%d
-REM     cd %%d
-REM     for %%i in (*.js) do (
-REM         echo %%d - %%i
-REM     )
-REM     cd ..
-REM )
-
-REM for %%m in (closure-compiler*.jar) do (
-REM     echo %%m is going to minify these js files
-REM     for %%i in (*.js) do (
-REM         echo %%i
-REM         REM java -jar %%m %%i> temp
-REM         REM type temp > %%i
-REM     )
-REM )
-REM del temp
+call :ScanFiles %1
 
 pause
 exit
@@ -56,22 +36,11 @@ for /d %%f in (*) do (
     cd ..
 )
 echo end of scanning
+echo %minifier%
 for %%i in (*.js) do (
     echo %%i
-    java -jar minifier %%i
-    REM java -jar minifier %%i> temp
-    REM type temp > %%i
+    java -jar %minifier% %%i
+    java -jar %minifier% %%i> temp
+    type temp > %%i
 )
-
-REM type motherfucker.txt
-REM type motherfucker.txt > Frank.txt
-REM type motherfucker.txt > motherfucker.txt
-REM for /f %%a in (motherfucker.txt) do ( 
-REM     echo %%a 
-REM )
-REM java -jar closure-compiler-v20180402.jar CookieManager.js
-REM java -jar closure-compiler-v20180402.jar CookieManager.js > fuck.js
-
-REM set var=Peter
-REM set var=John
-REM echo %var%
+del temp
